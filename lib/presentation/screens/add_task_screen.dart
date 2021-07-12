@@ -44,6 +44,7 @@ class AddTaskScreen extends StatelessWidget {
               ),
               onPressed: () {
                 print(newTaskTitle);
+                Navigator.pop(context, newTaskTitle);
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.blueAccent,

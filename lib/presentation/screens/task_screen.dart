@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:to_do/presentation/screens/add_task_screen.dart';
+import 'package:to_do/logic/cubit/cubit_navigator_task.dart';
+import 'package:to_do/logic/cubit/task_state.dart';
 import 'package:to_do/presentation/widget/task_list.dart';
 import 'package:to_do/shared/constants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/logic/cubit/cubit_tasks.dart';
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({Key? key}) : super(key: key);
@@ -12,19 +15,7 @@ class TasksScreen extends StatelessWidget {
       backgroundColor: Colors.blueAccent,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueAccent,
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (context) => SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: AddTaskScreen(),
-              ),
-            ),
-          );
-        },
+        onPressed: context.read<TaskNavigator>().onAddNewTask,
         child: Icon(Icons.add),
       ),
       body: Column(
@@ -53,7 +44,8 @@ class TasksScreen extends StatelessWidget {
                       fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  '7 task(s) left',
+                  '${BlocProvider.of<TaskCubit>(context).cubitListTask.taskCount} task(s) left',
+                  //'7 task(s) left',
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 )
               ],
@@ -61,10 +53,20 @@ class TasksScreen extends StatelessWidget {
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              decoration: roundContainerDecoration,
-              child: TaskList(),
-            ),
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                decoration: roundContainerDecoration,
+                child: BlocBuilder<TaskCubit, TaskListState>(
+                  builder: (context, state) {
+                    if (state is ShowTasksState) {
+                      context.read<TaskCubit>().giveTask();
+                      return TaskList();
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                )
+                //TaskList(),
+                ),
           ),
         ],
       ),
